@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "TenderTrack — Procurement Intelligence",
-  description: "Discover tenders, analyze competitors, and win more bids.",
+  title: "Jyad",
+  description: "Platform for Tracking Public Tenders.",
 };
 
 export default function RootLayout({
