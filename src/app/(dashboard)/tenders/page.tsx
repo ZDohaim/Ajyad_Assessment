@@ -4,6 +4,7 @@ import { Suspense, useEffect, useState, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import StatusBadge from "@/components/tenders/StatusBadge";
+import TenderSearchInput from "@/components/tenders/TenderSearchInput";
 import { TendersPageSkeleton } from "@/components/ui/page-skeletons";
 import { formatCurrency, formatDate, competitionLevel } from "@/lib/utils";
 import { TenderStatus } from "@/types";
@@ -36,6 +37,7 @@ function TendersContent() {
   const sector = searchParams.get("sector") || "";
   const region = searchParams.get("region") || "";
   const status = searchParams.get("status") || "";
+  const search = searchParams.get("search") || "";
 
   // Load filter options once on mount
   useEffect(() => {
@@ -54,12 +56,13 @@ function TendersContent() {
     if (sector) params.set("sector", sector);
     if (region) params.set("region", region);
     if (status) params.set("status", status);
+    if (search) params.set("search", search);
 
     const res = await fetch(`/api/tenders?${params.toString()}`);
     const data = await res.json();
     setTenders(data);
     setLoading(false);
-  }, [agency, sector, region, status]);
+  }, [agency, sector, region, search, status]);
 
   useEffect(() => {
     fetchTenders();
@@ -90,6 +93,8 @@ function TendersContent() {
 
       {/* Filters */}
       <div className="flex flex-wrap gap-3 mb-6">
+        <TenderSearchInput value={search} onChange={(value) => setFilter("search", value)} />
+
         {[
           { key: "agency", label: "Agency", options: agencies, value: agency },
           { key: "sector", label: "Sector", options: SECTORS, value: sector },
@@ -122,7 +127,7 @@ function TendersContent() {
           </div>
         ))}
 
-        {(agency || sector || region || status) && (
+        {(search || agency || sector || region || status) && (
           <button
             onClick={() => router.push("/tenders")}
             className="px-3 py-2 rounded-lg text-sm transition-all"
@@ -140,7 +145,7 @@ function TendersContent() {
             <svg className="w-10 h-10 mx-auto mb-3 opacity-40" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
-            <p className="font-medium">No tenders match your filters</p>
+            <p className="font-medium">No tenders match your search and filters</p>
             <button onClick={() => router.push("/tenders")} className="mt-2 text-sm" style={{ color: "var(--accent)" }}>
               Clear filters
             </button>

@@ -7,6 +7,7 @@ export async function GET(request: NextRequest) {
   const sector = searchParams.get("sector");
   const region = searchParams.get("region");
   const status = searchParams.get("status");
+  const search = searchParams.get("search")?.trim();
 
   const supabase = await createClient();
 
@@ -19,6 +20,14 @@ export async function GET(request: NextRequest) {
   if (sector) query = query.eq("sector", sector);
   if (region) query = query.eq("region", region);
   if (status) query = query.eq("status", status);
+  if (search) {
+    const normalizedSearch = search.replace(/[,%()]/g, " ").replace(/\s+/g, " ").trim();
+    if (normalizedSearch) {
+      query = query.or(
+        `title.ilike.%${normalizedSearch}%,agency.ilike.%${normalizedSearch}%,sector.ilike.%${normalizedSearch}%,region.ilike.%${normalizedSearch}%`
+      );
+    }
+  }
 
   const { data, error } = await query;
 
